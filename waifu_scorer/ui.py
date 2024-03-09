@@ -17,6 +17,11 @@ def parse_args():
         help='Type of the model',
     )
     parser.add_argument(
+        '--fix_model_path',
+        action='store_true',
+        help='Fix the model path',
+    )
+    parser.add_argument(
         '--device',
         type=str,
         default='cuda',
@@ -53,6 +58,7 @@ def ui(args):
                         label='Model Path',
                         value=args.model_path,
                         placeholder='Path or URL to the model file',
+                        interactive=not args.fix_model_path,
                     )
                 with gr.Row():
                     score = gr.Number(
