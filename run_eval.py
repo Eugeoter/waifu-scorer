@@ -106,18 +106,18 @@ def gradio_visualize_dataset(
 
 if __name__ == '__main__':
     dataset = Dataset(
-        source=r"D:\AI\datasets\aid\download-2",
+        source=r"Path to dataset.json or directory",
         read_attrs=False,
         verbose=True,
     ).sample(n=500, randomly=True)
     predictor_1 = WaifuScorer(
-        model_path=r"C:\Users\15070\Desktop\projects\waifu-scorer\models\2024-03-06\3\MLP_best-MSE3.0021_ep729.pth",
+        model_path=r"Path to your model.pth",
         model_type='mlp',
     )
-    predictor_2 = WaifuScorer(
-        model_path=r"C:\Users\15070\Desktop\projects\waifu-scorer\models\waifu-scorer-v2.pth",
-        model_type='mlp',
-    )
+    # predictor_2 = WaifuScorer(
+    #     model_path=r"C:\Users\15070\Desktop\projects\waifu-scorer\models\waifu-scorer-v2.pth",
+    #     model_type='mlp',
+    # )
 
     batch_size = 4
     res = []
@@ -132,10 +132,10 @@ if __name__ == '__main__':
             img_info.score_1 = score_1
             res.append(img_info)
 
-        scores_2 = predictor_2.predict(images)
-        for img_key, score_2 in zip(batch, scores_2):
-            img_info = dataset[img_key]
-            img_info.score_2 = score_2
+        # scores_2 = predictor_2.predict(images)
+        # for img_key, score_2 in zip(batch, scores_2):
+        #     img_info = dataset[img_key]
+        #     img_info.score_2 = score_2
 
     res = sorted(res, key=lambda img_info: img_info.score_1, reverse=True)
     # ============================= the following code is for visualization, which requires the gradio package =============================
@@ -143,6 +143,6 @@ if __name__ == '__main__':
     gradio_visualize_dataset(
         res,
         image_trans=lambda img_info: around_scale(Image.open(img_info.image_path), 512),
-        label_func=lambda img_info: f"{img_info.score_1:.2f} / {img_info.score_2:.2f}",
+        label_func=lambda img_info: f"{img_info.score_1:.2f}",
         share=False,
     )
