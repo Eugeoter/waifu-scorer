@@ -1,4 +1,5 @@
-from modules.ui import launch
+from waifu_scorer.ui import launch, parse_args
 
 if __name__ == '__main__':
-    launch()
+    args = parse_args()
+    launch(args)

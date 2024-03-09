@@ -1,4 +1,9 @@
-torch
-clip
-pillow
 tqdm
+gradio==4.13.0
+opencv-contrib-python
+numpy
+pillow
+torch
+pytorch-lightning
+git+https://github.com/Eugeoter/waifuset.git
+git+https://github.com/openai/CLIP.git

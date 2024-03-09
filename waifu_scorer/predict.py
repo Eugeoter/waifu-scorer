@@ -1,23 +1,24 @@
 import torch
 import clip
 import os
-from huggingface_hub import hf_hub_download
 from PIL import Image
 from typing import List
-from .mlp import MLP
+from .utils import get_model_cls
 
 WAIFU_FILTER_V1_MODEL_REPO = 'Eugeoter/waifu-filter-v1/waifu-filter-v1.pth'
 
 
 def download_from_url(url):
+    from huggingface_hub import hf_hub_download
     split = url.split("/")
     username, repo_id, model_name = split[-3], split[-2], split[-1]
     model_path = hf_hub_download(f"{username}/{repo_id}", model_name)
     return model_path
 
 
-def load_model(model_path: str = None, input_size=768, device: str = 'cuda', dtype=torch.float32):
-    model = MLP(input_size)
+def load_model(model_path: str = None, model_type='mlp', input_size=768, device: str = 'cuda', dtype=torch.float32):
+    model_cls = get_model_cls(model_type)
+    model = model_cls(input_size=input_size)
     if not os.path.isfile(model_path):
         model_path = download_from_url(model_path)
     s = torch.load(model_path, map_location=device)
@@ -43,16 +44,16 @@ def encode_images(images: List[Image.Image], model2, preprocess, device='cuda') 
     return im_emb_arr
 
 
-class WaifuFilter:
-    def __init__(self, model_path: str = WAIFU_FILTER_V1_MODEL_REPO, device: str = None, dtype=torch.float32):
+class WaifuScorer:
+    def __init__(self, model_path: str = WAIFU_FILTER_V1_MODEL_REPO, model_type='mlp', device: str = None, dtype=torch.float32):
         print(f"loading model from `{model_path}`...")
         device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
-        self.mlp = load_model(model_path, input_size=768, device=device, dtype=dtype)
+        self.mlp = load_model(model_path, model_type=model_type, input_size=768, device=device, dtype=dtype)
         self.mlp.eval()
         self.model2, self.preprocess = clip.load("ViT-L/14", device=device)
         self.device = self.mlp.device
         self.dtype = self.mlp.dtype
-        print(f"model loaded: device={self.device} | dtype={self.dtype}")
+        print(f"model loaded: cls={model_type} | device={self.device} | dtype={self.dtype}")
 
     @torch.no_grad()
     def predict(self, images: List[Image.Image]) -> float:
