@@ -1,5 +1,5 @@
 tqdm
-gradio==4.13.0
+gradio==4.19.2
 opencv-contrib-python
 numpy
 pillow
