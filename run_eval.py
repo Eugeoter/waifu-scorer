@@ -106,12 +106,15 @@ def gradio_visualize_dataset(
 
 if __name__ == '__main__':
     dataset = Dataset(
-        source=r"Path to dataset.json or directory",
+        source=r"/path/to/your/dataset-1",  # [需要修改] 测试集1的路径
         read_attrs=False,
         verbose=True,
-    ).sample(n=500, randomly=True)
+    ).sample(
+        n=500,  # [可选] 从数据集中随机抽取的样本数量
+        randomly=True,  # [可选] 是否随机抽取
+    )
     predictor_1 = WaifuScorer(
-        model_path=r"Path to your model.pth",
+        model_path=r"/path/to/your/model.pth",  # [需要修改] 模型路径
         model_type='mlp',
     )
     # predictor_2 = WaifuScorer(

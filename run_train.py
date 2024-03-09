@@ -7,22 +7,46 @@ from waifu_scorer.train_utils import quality_rating
 
 def custom_rating(img_info: ImageInfo):
     r"""
-    Customize your rating function here.
+    Customize your rating function here. / 在此处自定义你的评分函数。
     """
-    return quality_rating(img_info)
+    if img_info.category in ('horrible', 'impurity', 'worst'):
+        return 0
+    elif img_info.category in ('duplicate', 'watermark'):
+        return 1.25
+    elif img_info.category == 'low':
+        return 2.5
+    else:
+        return quality_rating(img_info)
 
 
 def custom_filter(img_info: ImageInfo):
     r"""
-    Customize your filter function here.
+    Customize your filter function here. / 在此处自定义你的筛选函数。
     """
+    if img_info.source.stem == 'download-2':
+        if not img_info.caption or not img_info.caption.quality:
+            return False
+    elif img_info.source.stem in ('download', 'preparation'):
+        if img_info.aesthetic_score is None:
+            return False
+        elif img_info.aesthetic_score < 6.0:
+            return False
+
+    if img_info.category.startswith(('azami', 'celluloid', 'dainty wilder', 'background')):
+        return False
+    elif img_info.category in ('alchemy stars', 'azur lane', 'arknights'):
+        if not img_info.caption or not img_info.caption.quality:
+            return False
+
     return True
 
 
 if __name__ == '__main__':
     dataset = Dataset(
         source=[
-            r"Path to dataset.json or directory",
+            r"/path/to/your/dataset-1",  # [需要修改] 数据集1的路径
+            r"/path/to/your/dataset-2",  # [可选] 数据集2的路径
+            r"/path/to/your/metadata.json",  # [可选] 数据集3的路径
         ],
         verbose=True,
     ).make_subset(condition=custom_filter)
@@ -30,13 +54,11 @@ if __name__ == '__main__':
     train(
         # 基本配置
         dataset_source=dataset,
-        # dataset_source=dataset,
         save_path=os.path.join(smart_path("./models/", "%date%/%index%"), 'MLP.pth'),  # ![需要修改] 训练后模型的保存路径
 
-        cache_path=r"Path to cache database.h5",  # 缓存数据的路径，建议填写，通过预先准备来大大提高训练速度
-        cache_to_disk=True,  # [可修改] 否将数据缓存到磁盘，建议填写，通过预先准备来大大提高训练速度
-        # resume_path='./models/laion/sac+logos+ava1-l14-linearMSE.pth',  # 从已有模型继续训练。模型结构必须相同，否则会报错
-        # resume_path="./models/laion/2024-01-03_0/large-model_batch-norm_768_best-MSE68.2167_ep2.pth",
+        cache_path=r"D:\AI\datasets\laion\cache\database_2024-01-01_768_1.h5",  # 缓存数据的路径，建议填写，通过预先准备来大大提高训练速度
+        cache_to_disk=True,  # [可选] 否将数据缓存到磁盘，建议设为 True，通过预先准备来大大提高训练速度
+        # resume_path="/path/to/your/model.pth", # [可选] 恢复训练的模型路径
 
         rating_func_type=custom_rating,  # [可修改] 评分类型，根据数据标注的类型，可从 'direct', 'label', 'quality' 中选择，默认为 'quality'
 
